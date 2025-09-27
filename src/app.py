@@ -77,6 +77,8 @@ activities = {
     }
 }
 
+# In-memory student portfolio database
+student_portfolios = {}
 
 @app.get("/")
 def root():
@@ -130,3 +132,16 @@ def unregister_from_activity(activity_name: str, email: str):
     # Remove student
     activity["participants"].remove(email)
     return {"message": f"Unregistered {email} from {activity_name}"}
+
+@app.post("/students/{email}/portfolio")
+def create_portfolio(email: str, portfolio: dict):
+    """Create or update a student portfolio"""
+    student_portfolios[email] = portfolio
+    return {"message": f"Portfolio for {email} has been created/updated."}
+
+@app.get("/students/{email}/portfolio")
+def get_portfolio(email: str):
+    """Retrieve a student portfolio"""
+    if email not in student_portfolios:
+        raise HTTPException(status_code=404, detail="Portfolio not found")
+    return student_portfolios[email]
